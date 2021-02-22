@@ -30,7 +30,7 @@ func BenchmarkRangeQuery(b *testing.B) {
 	storage := teststorage.New(b)
 	defer storage.Close()
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 50000000,
 		Timeout:    100 * time.Second,

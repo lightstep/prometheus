@@ -33,7 +33,7 @@ func TestDeriv(t *testing.T) {
 	storage := teststorage.New(t)
 	defer storage.Close()
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10000,
 		Timeout:    10 * time.Second,

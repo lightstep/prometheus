@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-kit/kit/log"
 	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/prometheus/prometheus/pkg/timestamp"
 	"github.com/prometheus/prometheus/promql/parser"
@@ -44,7 +43,7 @@ func TestQueryConcurrency(t *testing.T) {
 	queryTracker := NewActiveQueryTracker(dir, maxConcurrency, nil)
 
 	opts := EngineOpts{
-		Logger:             nil,
+		//Logger:             nil,
 		Reg:                nil,
 		MaxSamples:         10,
 		Timeout:            100 * time.Second,
@@ -103,7 +102,7 @@ func TestQueryConcurrency(t *testing.T) {
 
 func TestQueryTimeout(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    5 * time.Millisecond,
@@ -128,7 +127,7 @@ const errQueryCanceled = ErrQueryCanceled("test statement execution")
 
 func TestQueryCancel(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    10 * time.Second,
@@ -196,7 +195,7 @@ func (e errSeriesSet) Warnings() storage.Warnings { return nil }
 
 func TestQueryError(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    10 * time.Second,
@@ -245,7 +244,7 @@ func (h *hintRecordingQuerier) Select(sortSeries bool, hints *storage.SelectHint
 
 func TestSelectHintsSetCorrectly(t *testing.T) {
 	opts := EngineOpts{
-		Logger:        nil,
+		//Logger:        nil,
 		Reg:           nil,
 		MaxSamples:    10,
 		Timeout:       10 * time.Second,
@@ -390,7 +389,7 @@ func TestSelectHintsSetCorrectly(t *testing.T) {
 
 func TestEngineShutdown(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    10 * time.Second,
@@ -773,7 +772,7 @@ load 10s
 }
 
 func TestRecoverEvaluatorRuntime(t *testing.T) {
-	ev := &evaluator{logger: log.NewNopLogger()}
+	ev := &evaluator{}
 
 	var err error
 	defer ev.recover(nil, &err)
@@ -789,7 +788,7 @@ func TestRecoverEvaluatorRuntime(t *testing.T) {
 }
 
 func TestRecoverEvaluatorError(t *testing.T) {
-	ev := &evaluator{logger: log.NewNopLogger()}
+	ev := &evaluator{}
 	var err error
 
 	e := errors.New("custom error")
@@ -805,7 +804,7 @@ func TestRecoverEvaluatorError(t *testing.T) {
 }
 
 func TestRecoverEvaluatorErrorWithWarnings(t *testing.T) {
-	ev := &evaluator{logger: log.NewNopLogger()}
+	ev := &evaluator{}
 	var err error
 	var ws storage.Warnings
 
@@ -1096,7 +1095,7 @@ func (f *FakeQueryLogger) Log(l ...interface{}) error {
 
 func TestQueryLogger_basic(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    10 * time.Second,
@@ -1147,7 +1146,7 @@ func TestQueryLogger_basic(t *testing.T) {
 
 func TestQueryLogger_fields(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    10 * time.Second,
@@ -1176,7 +1175,7 @@ func TestQueryLogger_fields(t *testing.T) {
 
 func TestQueryLogger_error(t *testing.T) {
 	opts := EngineOpts{
-		Logger:     nil,
+		//Logger:     nil,
 		Reg:        nil,
 		MaxSamples: 10,
 		Timeout:    10 * time.Second,

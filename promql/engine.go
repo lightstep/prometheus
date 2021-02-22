@@ -26,8 +26,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -196,7 +194,7 @@ func contextErr(err error, env string) error {
 
 // EngineOpts contains configuration options used when creating a new Engine.
 type EngineOpts struct {
-	Logger             log.Logger
+	//Logger             log.Logger
 	Reg                prometheus.Registerer
 	MaxSamples         int
 	Timeout            time.Duration
@@ -213,7 +211,7 @@ type EngineOpts struct {
 // Engine handles the lifetime of queries from beginning to end.
 // It is connected to a querier.
 type Engine struct {
-	logger                   log.Logger
+	//logger                   log.Logger
 	metrics                  *engineMetrics
 	timeout                  time.Duration
 	maxSamplesPerQuery       int
@@ -226,9 +224,9 @@ type Engine struct {
 
 // NewEngine returns a new engine.
 func NewEngine(opts EngineOpts) *Engine {
-	if opts.Logger == nil {
-		opts.Logger = log.NewNopLogger()
-	}
+	//	if opts.Logger == nil {
+	//		opts.Logger = log.NewNopLogger()
+	//	}
 
 	queryResultSummary := prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace:  namespace,
@@ -279,9 +277,9 @@ func NewEngine(opts EngineOpts) *Engine {
 
 	if opts.LookbackDelta == 0 {
 		opts.LookbackDelta = defaultLookbackDelta
-		if l := opts.Logger; l != nil {
-			level.Debug(l).Log("msg", "Lookback delta is zero, setting to default value", "value", defaultLookbackDelta)
-		}
+		//		if l := opts.Logger; l != nil {
+		//			level.Debug(l).Log("msg", "Lookback delta is zero, setting to default value", "value", defaultLookbackDelta)
+		//		}
 	}
 
 	if opts.Reg != nil {
@@ -295,8 +293,8 @@ func NewEngine(opts EngineOpts) *Engine {
 	}
 
 	return &Engine{
-		timeout:                  opts.Timeout,
-		logger:                   opts.Logger,
+		timeout: opts.Timeout,
+		//logger:                   opts.Logger,
 		metrics:                  metrics,
 		maxSamplesPerQuery:       opts.MaxSamples,
 		activeQueryTracker:       opts.ActiveQueryTracker,
@@ -315,7 +313,7 @@ func (ng *Engine) SetQueryLogger(l QueryLogger) {
 		// not make reload fail; only log a warning.
 		err := ng.queryLogger.Close()
 		if err != nil {
-			level.Warn(ng.logger).Log("msg", "Error while closing the previous query log file", "err", err)
+			//level.Warn(ng.logger).Log("msg", "Error while closing the previous query log file", "err", err)
 		}
 	}
 
@@ -421,7 +419,7 @@ func (ng *Engine) exec(ctx context.Context, q *query) (v parser.Value, ws storag
 			}
 			if err := l.Log(f...); err != nil {
 				ng.metrics.queryLogFailures.Inc()
-				level.Error(ng.logger).Log("msg", "can't log query", "err", err)
+				//level.Error(ng.logger).Log("msg", "can't log query", "err", err)
 			}
 		}
 		ng.queryLoggerLock.RUnlock()
@@ -493,12 +491,12 @@ func (ng *Engine) execEvalStmt(ctx context.Context, query *query, s *parser.Eval
 	if s.Start == s.End && s.Interval == 0 {
 		start := timeMilliseconds(s.Start)
 		evaluator := &evaluator{
-			startTimestamp:           start,
-			endTimestamp:             start,
-			interval:                 1,
-			ctx:                      ctxInnerEval,
-			maxSamples:               ng.maxSamplesPerQuery,
-			logger:                   ng.logger,
+			startTimestamp: start,
+			endTimestamp:   start,
+			interval:       1,
+			ctx:            ctxInnerEval,
+			maxSamples:     ng.maxSamplesPerQuery,
+			//logger:                   ng.logger,
 			lookbackDelta:            ng.lookbackDelta,
 			noStepSubqueryIntervalFn: ng.noStepSubqueryIntervalFn,
 		}
@@ -543,12 +541,12 @@ func (ng *Engine) execEvalStmt(ctx context.Context, query *query, s *parser.Eval
 
 	// Range evaluation.
 	evaluator := &evaluator{
-		startTimestamp:           timeMilliseconds(s.Start),
-		endTimestamp:             timeMilliseconds(s.End),
-		interval:                 durationMilliseconds(s.Interval),
-		ctx:                      ctxInnerEval,
-		maxSamples:               ng.maxSamplesPerQuery,
-		logger:                   ng.logger,
+		startTimestamp: timeMilliseconds(s.Start),
+		endTimestamp:   timeMilliseconds(s.End),
+		interval:       durationMilliseconds(s.Interval),
+		ctx:            ctxInnerEval,
+		maxSamples:     ng.maxSamplesPerQuery,
+		//logger:                   ng.logger,
 		lookbackDelta:            ng.lookbackDelta,
 		noStepSubqueryIntervalFn: ng.noStepSubqueryIntervalFn,
 	}
@@ -742,9 +740,9 @@ type evaluator struct {
 	endTimestamp   int64 // End time in milliseconds.
 	interval       int64 // Interval in milliseconds.
 
-	maxSamples               int
-	currentSamples           int
-	logger                   log.Logger
+	maxSamples     int
+	currentSamples int
+	//logger                   log.Logger
 	lookbackDelta            time.Duration
 	noStepSubqueryIntervalFn func(rangeMillis int64) int64
 }
@@ -772,7 +770,7 @@ func (ev *evaluator) recover(ws *storage.Warnings, errp *error) {
 		buf := make([]byte, 64<<10)
 		buf = buf[:runtime.Stack(buf, false)]
 
-		level.Error(ev.logger).Log("msg", "runtime panic in parser", "err", e, "stacktrace", string(buf))
+		//level.Error(ev.logger).Log("msg", "runtime panic in parser", "err", e, "stacktrace", string(buf))
 		*errp = errors.Wrap(err, "unexpected error")
 	case errWithWarnings:
 		*errp = err.err
@@ -1309,11 +1307,11 @@ func (ev *evaluator) eval(expr parser.Expr) (parser.Value, storage.Warnings) {
 		offsetMillis := durationMilliseconds(e.Offset)
 		rangeMillis := durationMilliseconds(e.Range)
 		newEv := &evaluator{
-			endTimestamp:             ev.endTimestamp - offsetMillis,
-			ctx:                      ev.ctx,
-			currentSamples:           ev.currentSamples,
-			maxSamples:               ev.maxSamples,
-			logger:                   ev.logger,
+			endTimestamp:   ev.endTimestamp - offsetMillis,
+			ctx:            ev.ctx,
+			currentSamples: ev.currentSamples,
+			maxSamples:     ev.maxSamples,
+			//logger:                   ev.logger,
 			lookbackDelta:            ev.lookbackDelta,
 			noStepSubqueryIntervalFn: ev.noStepSubqueryIntervalFn,
 		}
